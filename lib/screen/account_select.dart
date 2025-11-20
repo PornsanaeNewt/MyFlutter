@@ -69,7 +69,7 @@ class _AccountSelectState extends State<AccountSelect> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegisterPage()),
+                        MaterialPageRoute(builder: (context) => const Register()),
                       );
                     },
                     child: const Text("Sign Up"),

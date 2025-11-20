@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_test1/screen/home.dart';
-import 'package:flutter_app_test1/screen/register.dart';
+import 'package:flutter_app_test1/route/route_name.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
+import 'package:go_router/go_router.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -30,12 +30,9 @@ class _LoginState extends State<Login> {
         );
   
         print(response.statusCode);
-        if (response.statusCode == 201) {
+        if (response.statusCode == 200) {
           print("Login successful: $response");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
+          GoRouter.of(context).goNamed(RouteName.homepage);
         } else {
           print("Login failed with status: ${response.statusCode}");
         }
@@ -197,12 +194,7 @@ class _LoginState extends State<Login> {
                     const Text("Dont have an account? "),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterPage(),
-                          ),
-                        );
+                        GoRouter.of(context).pushNamed(RouteName.register);
                       },
                       child: const Text(
                         "Sign up",

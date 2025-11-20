@@ -162,4 +162,5 @@ class DudeeService {
   Future<Response> logout() async {
     return await _dioDudee.post('/auth/logout');
   }
+
 }

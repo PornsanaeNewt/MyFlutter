@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/service/SharedPreferences/shared_preferences.dart';
 import 'package:flutter_app_test1/widgets/custom_drawerbar.dart';
+import 'package:flutter_app_test1/widgets/list_chat_widget.dart';
+import 'package:flutter_app_test1/widgets/list_friend_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,7 +11,25 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+class friend {
+  final String name;
+  final String lname;
+  friend({required this.name, required this.lname});
+}
+
+final List<friend> friends = [
+  friend(name: 'Miyamura', lname: 'Izumi'),
+  friend(name: 'Hori', lname: 'Kyoko'),
+  friend(name: 'Shoya', lname: 'Ishida'),
+  friend(name: 'Nishimiya', lname: 'Shoko'),
+  friend(name: 'Hayasaka', lname: 'Akito'),
+  friend(name: 'Sakurai', lname: 'Haruna'),
+  friend(name: 'Shokuho', lname: 'Misaki'),
+  friend(name: 'Kamijo', lname: 'Toma'),
+];
+
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -19,15 +39,16 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchData() async {
     try {
       final token = await SharedPreferencesProvider.getToken('accessToken');
-      final ref = await SharedPreferencesProvider.getRefreshToken('refreshToken');
-
+      final ref = await SharedPreferencesProvider.getRefreshToken(
+        'refreshToken',
+      );
       print('Access Token: $token');
       print('Refesh Token: $ref');
-
     } catch (e) {
       print(e);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +69,63 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Center(
-        child: Text('Welcome to the Home Page!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: const [
+                CircleAvatar(
+                  radius: 30,
+                ),
+                SizedBox(width: 10),
+                Text('Chats', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                SizedBox(width: 200),
+                Icon(Icons.camera_alt_outlined, size: 28,),
+                SizedBox(width: 16),
+                Icon(Icons.edit, size: 28,),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Search...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                  filled: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: friends.length,
+                itemBuilder: (context, index) {
+                  final friend = friends[index];
+                  return ListFriendWidget(
+                    name: friend.name,
+                    lname: friend.lname,
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: friends.length,
+                itemBuilder: (context, index) {
+                  final friend = friends[index];
+                  return ListChatWidget(name: friend.name, lname: friend.lname);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -38,6 +38,7 @@ class TokenInterceptor extends Interceptor {
           );
 
           // ปล่อย queue ที่รออยู่ให้ยิงใหม่
+          // ignore: unused_local_variable
           for (var callback in _retryQueue) {
             _retryQueue.add((RequestOptions requestOptions) async {
               return dio.fetch(requestOptions);

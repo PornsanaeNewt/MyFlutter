@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_test1/route/route_name.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
+import 'package:go_router/go_router.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class Register extends StatefulWidget {
+  const Register({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<Register> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterPageState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -25,12 +27,12 @@ class _RegisterPageState extends State<RegisterPage> {
         print(response.statusCode);
         if (response.statusCode == 201) {
           print("Registration successful: $response");
-          Navigator.pop(context);
+          GoRouter.of(context).pushNamed(RouteName.homepage) ;
         } else {
           print("Registration failed with status: ${response.statusCode}");
         }
       } catch (e) {
-        
+        print(e);
       }
     }
   }
@@ -38,9 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-      ),
+      appBar: AppBar(title: const Text('Register')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
@@ -48,9 +48,26 @@ class _RegisterPageState extends State<RegisterPage> {
             key: _formKey,
             child: Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Image.asset(
+                    'lib/assets/ig_logo.png',
+                    width: 250,
+                    height: 250,
+                  ),
+                ),
                 TextFormField(
                   controller: emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    labelText: 'Email',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
@@ -58,9 +75,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    labelText: 'Password',
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -69,10 +96,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    labelText: 'Name',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
@@ -80,18 +116,44 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                   onPressed: onRegister,
-                  child: const Text('Register'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.lightBlue.shade300,
+
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: const Text('Register' , style: TextStyle(color: Colors.white),),
                 ),
-                const SizedBox(height: 20
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("have an account?"),
+                    TextButton(
+                      onPressed: () {
+                        GoRouter.of(context).pushNamed(RouteName.login);
+                      },
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.lightBlue),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+        ),
       ),
-    )
     );
   }
 }
