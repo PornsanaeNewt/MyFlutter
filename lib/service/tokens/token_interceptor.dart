@@ -1,8 +1,13 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
-import 'package:flutter_app_test1/service/SharedPreferences/shared_preferences.dart';
+
+class Token {
+  static const String accessToken = 'accessToken';
+  static const String refreshToken = 'refreshToken';
+}
 
 class TokenInterceptor extends Interceptor {
   bool _isRefreshing = false;
@@ -11,7 +16,7 @@ class TokenInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // ใส่ AccessToken ก่อนยิง request
-    final accessToken = SharedPreferencesProvider.getToken;
+    final accessToken = LocalStorageService.getToken;
     options.headers["Authorization"] = "Bearer ${accessToken}";
     return handler.next(options);
   }
@@ -31,9 +36,9 @@ class TokenInterceptor extends Interceptor {
           final dio = Dio();
 
           // อัปเดท token
-          await SharedPreferencesProvider.saveToken(newTokens['accessToken']);
+          await LocalStorageService.saveToken(newTokens['accessToken']);
 
-          await SharedPreferencesProvider.saveRefreshToken(
+          await LocalStorageService.saveRefreshToken(
             newTokens['refreshToken'],
           );
 
@@ -70,7 +75,7 @@ class TokenInterceptor extends Interceptor {
   // --------------------
   Future<Map<String, dynamic>> _refreshToken() async {
     final dio = Dio();
-    final refreshToken = SharedPreferencesProvider.getRefreshToken;
+    final refreshToken = LocalStorageService.getRefreshToken;
     final res = await dio.post(
       "${NetworkAPI.baseURLDudee}/auth/refresh",
       data: {"refreshToken": refreshToken},
@@ -84,7 +89,7 @@ class TokenInterceptor extends Interceptor {
   // --------------------
   Future<Response> _retryRequest(RequestOptions requestOptions) async {
     final dio = Dio();
-    final accessToken = SharedPreferencesProvider.getToken;
+    final accessToken = LocalStorageService.getToken;
     requestOptions.headers["Authorization"] = "Bearer ${accessToken}";
     return await dio.fetch(requestOptions);
   }

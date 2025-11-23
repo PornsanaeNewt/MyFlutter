@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_test1/route/route_name.dart';
+import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,7 +19,7 @@ class _RegisterPageState extends State<Register> {
   void onRegister() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final response = await DudeeService().Register(
+        final response = await DudeeService().register(
           email: emailController.text,
           password: passwordController.text,
           name: nameController.text,
@@ -27,7 +27,7 @@ class _RegisterPageState extends State<Register> {
         print(response.statusCode);
         if (response.statusCode == 201) {
           print("Registration successful: $response");
-          GoRouter.of(context).pushNamed(RouteName.homepage) ;
+          GoRouter.of(context).pushNamed(AppRoute.home);
         } else {
           print("Registration failed with status: ${response.statusCode}");
         }
@@ -140,7 +140,7 @@ class _RegisterPageState extends State<Register> {
                     const Text("have an account?"),
                     TextButton(
                       onPressed: () {
-                        GoRouter.of(context).pushNamed(RouteName.login);
+                        GoRouter.of(context).pushNamed(AppRoute.login);
                       },
                       child: const Text(
                         "Login",

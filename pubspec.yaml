@@ -14,6 +14,7 @@ dependencies:
   logarte: ^1.4.0
   shared_preferences: ^2.0.15 
   go_router: ^17.0.0
+  get: ^4.7.2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_test1/screen/register.dart';
+import 'package:flutter_app_test1/screen/register/register.dart';
 
 class AccountSelect extends StatefulWidget {
   const AccountSelect({super.key});

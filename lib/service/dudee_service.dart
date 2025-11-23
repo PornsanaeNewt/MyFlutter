@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_app_test1/config/app_config.dart';
+import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
+import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/app_service.dart';
 import 'package:flutter_app_test1/service/fmc/firebase_analytics.dart';
-import 'package:flutter_app_test1/service/SharedPreferences/shared_preferences.dart';
+import 'package:flutter_app_test1/service/tokens/token_interceptor.dart';
 //import 'package:logarte/logarte.dart';
 
 /// Custom Exception สำหรับ DudeeService
@@ -36,7 +38,9 @@ class DudeeService {
               requestOptions.baseUrl = NetworkAPI.baseURLDudee;
 
               // Headers
-              final makeToken = AppConfig.makeTokenAuthorization;
+              final makeToken = await LocalStorageService.getToken(Token.accessToken);
+              // final makeToken = AppConfig.makeTokenAuthorization;
+
               final secretkey = AppConfig.secretKey;
               final cookie = AppConfig.cookie;
 
@@ -50,11 +54,12 @@ class DudeeService {
               return handler.next(response);
             },
             onError: (dioError, handler) async {
-              String? refreshToken = await SharedPreferencesProvider.getRefreshToken('refreshToken');
+              String? refreshToken =
+                  await LocalStorageService.getRefreshToken(
+                    'refreshToken',
+                  );
               if (refreshToken == null) {
-                
                 return handler.next(dioError);
-                
               }
               // Log error
               AnalyticsService.logError(
@@ -116,51 +121,91 @@ class DudeeService {
     return await _dioDudee.post(url, data: data);
   }
 
-  Future<Response> Register({
+  Future<Response> register({
     required String email,
     required String password,
     required String name,
   }) async {
     final data = {'email': email, 'password': password, 'name': name};
-    final response = await _dioDudee.post('/auth/register', data: data);
+    final response = await _dioDudee.post(NetworkAPI.register, data: data);
+    if (response.statusCode == 201 && response.data['message'] == 'User registered successfully.') {
+     final dataPayload = response.data['data'] as Map<String, dynamic>;
+      print('Data Payload received: $dataPayload');
+      final String accessToken = dataPayload['accessToken'] as String;
+      final String refreshToken = dataPayload['refreshToken'] as String;
+      await LocalStorageService.saveToken(accessToken);
+      await LocalStorageService.saveRefreshToken(refreshToken);
+    }else {
+       throw DudeeServiceException(
+        message: 'Register failed: Invalid response structure.',
+      );
+    }
     return response;
   }
 
-  Future<Response> Login({
+  static Future<String?> login({
     required String email,
     required String password,
   }) async {
     final data = {'email': email, 'password': password};
-    final response = await _dioDudee.post('/auth/login', data: data);
-
-    if (response.data == null || response.data['data'] == null) {
-      throw DudeeServiceException(message: 'Login failed: Invalid response structure.');
+    final response = await _dioDudee.post(NetworkAPI.login, data: data);
+    print('response status : ${response.statusCode}');
+    if (response.statusCode == 400 &&
+        response.data['message'] == 'Something went wrong.') {
+      throw DudeeServiceException(
+        message: 'Login failed: Invalid response structure.',
+      );
+    } else if (response.statusCode == 200) {
+      final dataPayload = response.data['data'] as Map<String, dynamic>;
+      final String accessToken = dataPayload['accessToken'] as String;
+      final String refreshToken = dataPayload['refreshToken'] as String;
+      await LocalStorageService.saveToken(accessToken);
+      await LocalStorageService.saveRefreshToken(refreshToken);
+      return 'Successful';
+    } else {
+       if (response.data.containsKey('message')) {
+        return response.data['message'];
+      } else {
+        return response.data['errors'];
+      }
     }
-
-    final dataPayload = response.data['data'] as Map<String, dynamic>; 
-    print('Data Payload received: $dataPayload');
-
-    final String accessToken = dataPayload['accessToken'] as String; 
-    final String refreshToken = dataPayload['refreshToken'] as String; 
-
-    await SharedPreferencesProvider.saveToken(accessToken);
-    await SharedPreferencesProvider.saveRefreshToken(refreshToken); 
-
-    return response;
   }
 
   Future<Response> refreshToken({required String refreshToken}) async {
-    String? ref = await SharedPreferencesProvider.getRefreshToken('refreshToken');
+    String? ref = await LocalStorageService.getRefreshToken(
+      'refreshToken',
+    );
     final data = {ref: refreshToken};
     return await _dioDudee.post('/auth/refresh', data: data);
   }
 
-  Future<Response> getUserProfile() async {
-    return await _dioDudee.get('/auth/me');
+  // Get User Profile
+  Future<UserProfile> getUserProfile() async {
+    try {
+      final response = await _dioDudee.get('${NetworkAPI.userProfile}');
+      print('Get Profile Status ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final userProfile = UserProfile.fromJson(response.data);
+        return userProfile;
+      } else {
+        throw DudeeServiceException(
+          message: 'Failed to load user profile',
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 
-  Future<Response> logout() async {
-    return await _dioDudee.post('/auth/logout');
+  Future<Response> logOut() async {
+    final response = await _dioDudee.post('${NetworkAPI.logout}');
+    print('logout response ${response.statusCode}');
+    if(response.statusCode == 201 && response.data['status'] == 'success'){
+      return response;
+    }else{
+      throw DudeeServiceException(message: 'Logged out successfully.');
+    }
   }
-
 }

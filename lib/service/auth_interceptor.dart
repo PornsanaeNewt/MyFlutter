@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
-import 'package:flutter_app_test1/service/SharedPreferences/shared_preferences.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
   final DudeeService _dudeeService = DudeeService();
@@ -10,13 +10,13 @@ class AuthInterceptor extends QueuedInterceptor {
     if (err.response?.statusCode == 401) {
       try {
         String? refreshToken =
-            await SharedPreferencesProvider.getRefreshToken('refreshToken');
+            await LocalStorageService.getRefreshToken('refreshToken');
         if (refreshToken != null) {
           final response =
               await _dudeeService.refreshToken(refreshToken: refreshToken);
           if (response.statusCode == 200) {
             String newAccessToken = response.data['data']['accessToken'];
-            await SharedPreferencesProvider.saveToken(newAccessToken);
+            await LocalStorageService.saveToken(newAccessToken);
 
             final opts = err.requestOptions;
             opts.headers['Authorization'] = 'Bearer $newAccessToken';

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_test1/service/SharedPreferences/shared_preferences.dart';
-import 'package:flutter_app_test1/widgets/custom_drawerbar.dart';
-import 'package:flutter_app_test1/widgets/list_chat_widget.dart';
-import 'package:flutter_app_test1/widgets/list_friend_widget.dart';
+import 'package:flutter_app_test1/config/routes/app_route.dart';
+import 'package:flutter_app_test1/screen/widgets/custom_drawerbar.dart';
+import 'package:flutter_app_test1/screen/home/widgets/list_chat_widget.dart';
+import 'package:flutter_app_test1/screen/home/widgets/list_friend_widget.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,23 +31,10 @@ final List<friend> friends = [
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    try {
-      final token = await SharedPreferencesProvider.getToken('accessToken');
-      final ref = await SharedPreferencesProvider.getRefreshToken(
-        'refreshToken',
-      );
-      print('Access Token: $token');
-      print('Refesh Token: $ref');
-    } catch (e) {
-      print(e);
-    }
   }
 
   @override
@@ -74,16 +62,24 @@ class _HomePageState extends State<HomePage> {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
-                CircleAvatar(
-                  radius: 30,
+              children: [
+                InkWell(
+                  onTap: () {
+                    GoRouter.of(context).pushNamed(AppRoute.profile);
+                  },
+                  child: CircleAvatar(
+                  radius: 30.0,
                 ),
-                SizedBox(width: 10),
-                Text('Chats', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-                SizedBox(width: 200),
-                Icon(Icons.camera_alt_outlined, size: 28,),
-                SizedBox(width: 16),
-                Icon(Icons.edit, size: 28,),
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Chats',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 200),
+                const Icon(Icons.camera_alt_outlined, size: 28),
+                const SizedBox(width: 16),
+                const Icon(Icons.edit, size: 28),
               ],
             ),
             const SizedBox(height: 10),

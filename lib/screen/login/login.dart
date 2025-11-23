@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_test1/route/route_name.dart';
-import 'package:flutter_app_test1/service/dudee_service.dart';
+import 'package:flutter_app_test1/config/routes/app_route.dart';
+import 'package:flutter_app_test1/service/auth.dart';
 import 'package:go_router/go_router.dart';
 
 class Login extends StatefulWidget {
@@ -17,25 +17,29 @@ class _LoginState extends State<Login> {
   var passwordController = TextEditingController();
   bool _isLoading = false;
 
+@override
+  void initState() {
+  emailController.text ='kim@example.com';
+passwordController.text = '123456';
+    super.initState();
+  }
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   void onLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-  
       try {
-        final response = await DudeeService().Login(
-          email: emailController.text,
-          password: passwordController.text,
-        );
-  
-        print(response.statusCode);
-        if (response.statusCode == 200) {
-          print("Login successful: $response");
-          GoRouter.of(context).goNamed(RouteName.homepage);
-        } else {
-          print("Login failed with status: ${response.statusCode}");
-        }
+        final email = emailController.text;
+        final password = passwordController.text;
+        await Auth().login(context, email: email, password: password);
       } catch (e) {
         print(e);
       } finally {
@@ -49,7 +53,6 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
@@ -194,7 +197,7 @@ class _LoginState extends State<Login> {
                     const Text("Dont have an account? "),
                     TextButton(
                       onPressed: () {
-                        GoRouter.of(context).pushNamed(RouteName.register);
+                        GoRouter.of(context).pushNamed(AppRoute.register);
                       },
                       child: const Text(
                         "Sign up",
