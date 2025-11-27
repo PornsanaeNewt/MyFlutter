@@ -60,4 +60,14 @@ class LocalStorageService {
         'name': name,
     };
   }
+
+  static Future<void> saveIsLogin(bool isLogin) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(AppSetting.isLogin, isLogin);
+  }
+
+  static Future<bool> getIsLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(AppSetting.isLogin) ?? false;
+  }
 }

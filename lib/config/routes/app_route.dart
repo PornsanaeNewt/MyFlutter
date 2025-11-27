@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_test1/controller/user_controller.dart';
+import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/model/conversation.dart';
 import 'package:flutter_app_test1/screen/chat/view/chat.dart';
 import 'package:flutter_app_test1/screen/home/view/home.dart';
 import 'package:flutter_app_test1/screen/login/login.dart';
 import 'package:flutter_app_test1/screen/profile/profile.dart';
 import 'package:flutter_app_test1/screen/register/register.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -23,22 +22,28 @@ class AppRoute {
 
   static final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
-    redirect: (BuildContext context, GoRouterState state) {
-      final userController = Get.put(UserController());
-      userController.update;
-      final bool isLoggedIn = userController.isLogIn.value;
-      final String location = state.matchedLocation;
-      final bool isGoingToLogin = location == AppRoute.login;
-      final bool isGoingToRegister = location == AppRoute.register;
-      if (!isLoggedIn && !isGoingToLogin && !isGoingToRegister) {
+    // Redirect function สำหรับตรวจสอบ authentication
+    redirect: (BuildContext context, GoRouterState state) async {
+      final isLoginPage = state.uri.path == AppRoute.login;
+      final isRegisterPage = state.uri.path == AppRoute.register;
+
+      if (isLoginPage || isRegisterPage) {
+        return null;
+      }
+
+      final isLoggedIn = await LocalStorageService.getIsLogin();
+
+      if (!isLoggedIn) {
         return AppRoute.login;
       }
-      if (isLoggedIn && (isGoingToLogin || isGoingToRegister)) {
+
+      if (state.uri.path == AppRoute.currentRoute) {
         return AppRoute.home;
       }
+
       return null;
     },
-    
+
     routes: [
       GoRoute(
         name: 'current',
@@ -71,7 +76,6 @@ class AppRoute {
       //     return MaterialPage(child: Login());
       //   },
       // ),
-
       GoRoute(
         name: register,
         path: register,
@@ -92,7 +96,11 @@ class AppRoute {
         name: chat,
         path: '${chat}/:conversationId',
         pageBuilder: (context, state) {
-          return MaterialPage(child: ChatPage(conversationId: state.pathParameters['conversationId']!,));
+          return MaterialPage(
+            child: ChatPage(
+              conversationId: state.pathParameters['conversationId']!,
+            ),
+          );
         },
       ),
     ],
