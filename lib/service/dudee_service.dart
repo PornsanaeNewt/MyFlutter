@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_app_test1/config/app_config.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
@@ -32,7 +34,7 @@ class DudeeService {
   /// Dio instance สำหรับ API calls หลัก
   static final Dio _dioDudee =
       Dio()
-        ..interceptors.add(TokenInterceptor())
+        // ..interceptors.add(TokenInterceptor())
         //..interceptors.add(LogarteDioInterceptor(logarte))
         ..interceptors.add(
           InterceptorsWrapper(
@@ -245,25 +247,63 @@ class DudeeService {
     }
   }
 
+  /// ดึงข้อมูล conversations ทั้งหมด
+  /// แก้ไข: ใช้ Chat.fromJson() โดยตรงแทนการ encode/decode ซ้ำ
   Future<Chat> getConversations() async {
     try {
       final response = await _dioDudee.get(NetworkAPI.getConversations);
       print('Conversations Status ${response.statusCode}');
-      print('Conversations Data ${response.data}');
-      return Chat.fromJson(response.data);
+
+      // ใช้ response.data โดยตรง (เป็น Map อยู่แล้ว) ไม่ต้อง encode/decode ซ้ำ
+      // ทำให้เร็วกว่าและลดโอกาส timeout
+      if (response.data is Map<String, dynamic>) {
+        return Chat.fromJson(response.data as Map<String, dynamic>);
+      } else {
+        // Fallback: ถ้าไม่ใช่ Map ให้ encode แล้ว parse
+        return chatFromJson(jsonEncode(response.data));
+      }
     } catch (e) {
+      print('Error in getConversations: $e');
       rethrow;
     }
   }
 
+  /// ดึงข้อมูล friends ทั้งหมด
+  /// แก้ไข: เพิ่ม error handling, timeout และใช้ fromJson โดยตรง
   Future<Friend> listFriend() async {
-    final response = await _dioDudee.get(NetworkAPI.friend);
-    print('List Friend Status ${response.statusCode}');
-    print('List Friend Data ${response.data}');
-    if (response.statusCode == 200) {
-      return Friend.fromJson(response.data);
-    } else {
-      throw DudeeServiceException(message: 'Failed to load friends.');
+    try {
+      // เพิ่ม timeout สำหรับ request นี้ (60 วินาที) เพื่อรองรับ server ที่ response ช้า
+      final response = await _dioDudee.get(
+        NetworkAPI.friend,
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          sendTimeout: const Duration(seconds: 60),
+        ),
+      );
+      print('List Friend Status ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        // ใช้ response.data โดยตรง (เป็น Map อยู่แล้ว) ไม่ต้อง encode/decode ซ้ำ
+        if (response.data is Map<String, dynamic>) {
+          return Friend.fromJson(response.data as Map<String, dynamic>);
+        } else {
+          // Fallback: ถ้าไม่ใช่ Map ให้ encode แล้ว parse
+          return friendFromJson(jsonEncode(response.data));
+        }
+      } else {
+        throw DudeeServiceException(
+          message: 'Failed to load friends. Status: ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      print('❌ Error in listFriend: $e');
+      if (e is DudeeServiceException) {
+        rethrow;
+      }
+      throw DudeeServiceException(
+        message: 'Failed to load friends: ${e.toString()}',
+      );
     }
   }
 

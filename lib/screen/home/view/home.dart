@@ -53,8 +53,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadCurrentUserInfo() async {
-    conversationController.fetchConversations();
-    friendController.fetchFriends();
+    // await conversationController.fetchConversations();
+    // await friendController.fetchFriends();
   }
 
   @override
