@@ -9,11 +9,11 @@ class AuthInterceptor extends QueuedInterceptor {
   void onError(DioError err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
       try {
-        String? refreshToken =
-            await LocalStorageService.getRefreshToken('refreshToken');
+        String? refreshToken = await LocalStorageService.getRefreshToken();
         if (refreshToken != null) {
-          final response =
-              await _dudeeService.refreshToken(refreshToken: refreshToken);
+          final response = await _dudeeService.refreshToken(
+            refreshToken: refreshToken,
+          );
           if (response.statusCode == 200) {
             String newAccessToken = response.data['data']['accessToken'];
             await LocalStorageService.saveToken(newAccessToken);
@@ -31,5 +31,4 @@ class AuthInterceptor extends QueuedInterceptor {
     }
     return handler.reject(err);
   }
-  
 }

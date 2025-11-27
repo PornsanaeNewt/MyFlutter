@@ -19,6 +19,13 @@ class UserController extends GetxController {
     try {
       final response = await DudeeService().getUserProfile();
       userProfile.value = response;
+      await LocalStorageService().setUserInfo(
+        userId: response.data?.userId ?? 0,
+        email: response.data?.email ?? '',
+        name: response.data?.name ?? '',
+      );
+
+      print('userProfile: ${userProfile.value?.data?.profileUrl}');
       update();
     } catch (e) {
       print("Error fetching user profile: $e");
