@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/config/app_config.dart';
+import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
 import 'package:flutter_app_test1/model/chat_model.dart';
@@ -10,8 +11,8 @@ import 'package:flutter_app_test1/model/friend_model.dart';
 import 'package:flutter_app_test1/model/message_model.dart';
 import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/app_service.dart';
+import 'package:flutter_app_test1/service/auth.dart';
 import 'package:flutter_app_test1/service/fmc/firebase_analytics.dart';
-import 'package:flutter_app_test1/service/tokens/token_interceptor.dart';
 import 'package:toastification/toastification.dart';
 //import 'package:logarte/logarte.dart';
 
@@ -65,19 +66,13 @@ class DudeeService {
             },
             onError: (dioError, handler) async {
               Toastification().show(
-                title: Text("Network Error"),
+                title: const Text("Network Error"),
                 description: Text(
-                  dioError.response!.statusCode.toString() +
-                      dioError.requestOptions.uri.toString(),
+                  '${dioError.response?.statusCode ?? ''} ${dioError.requestOptions.uri}',
                 ),
                 type: ToastificationType.error,
               );
 
-              String? refreshToken =
-                  await LocalStorageService.getRefreshToken();
-              if (refreshToken == null) {
-                return handler.next(dioError);
-              }
               // Log error
               AnalyticsService.logError(
                 errorMessage: 'Dio Network Error',
@@ -99,6 +94,49 @@ class DudeeService {
                 );
               }
 
+              // Handle 401: try refresh, then retry; if fails, logout.
+              if (dioError.response != null &&
+                  dioError.response!.statusCode == 401) {
+                final refreshToken =
+                    await LocalStorageService.getRefreshToken();
+
+                // Prevent infinite retry loop
+                final alreadyRetried =
+                    dioError.requestOptions.extra['tokenRetried'] == true;
+
+                if (refreshToken != null && !alreadyRetried) {
+                  try {
+                    final refreshResponse = await _dioDudee.post(
+                      NetworkAPI.refresh,
+                      data: {'refreshToken': refreshToken},
+                    );
+
+                    final data = refreshResponse.data;
+                    final newAccessToken = data['accessToken'] as String?;
+
+                    if (newAccessToken != null) {
+                      await LocalStorageService.saveToken(newAccessToken);
+
+                      final opts = dioError.requestOptions;
+                      opts.headers['Authorization'] = 'Bearer $newAccessToken';
+                      opts.extra['tokenRetried'] = true;
+
+                      final retryResponse = await _dioDudee.fetch(opts);
+                      return handler.resolve(retryResponse);
+                    }
+                  } catch (e) {
+                    // fallthrough to logout
+                  }
+                }
+
+                // Refresh not available or failed -> logout
+                final ctx = rootNavigatorKey.currentContext;
+                if (ctx != null) {
+                  await Auth().logout(ctx);
+                }
+                return handler.next(dioError);
+              }
+
               // Handle 400 errors
               if (dioError.response != null &&
                   dioError.response!.statusCode == 400 &&
@@ -114,8 +152,6 @@ class DudeeService {
                       'Error Response Data: ${responseData['errors']}',
                 );
               }
-
-              //Handle 401 reeors
 
               // Handle non-response errors
               if (dioError.response == null) {

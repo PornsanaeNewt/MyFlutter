@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
 import 'package:flutter_app_test1/controller/friend_controller.dart';
@@ -10,7 +11,6 @@ import 'package:flutter_app_test1/screen/home/widgets/list_chat_widget.dart';
 import 'package:flutter_app_test1/screen/home/widgets/list_friend_widget.dart';
 import 'package:flutter_app_test1/screen/widgets/profile_circle.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
 
@@ -124,7 +124,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 }
-                return Text('Token: ${snapshot.data}');
+                final token = snapshot.data ?? '';
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Token: $token',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy),
+                      tooltip: 'Copy token',
+                      onPressed:
+                          token.isEmpty
+                              ? null
+                              : () {
+                                Clipboard.setData(ClipboardData(text: token));
+                                Toastification().show(
+                                  title: const Text('Copied'),
+                                  description: const Text('Token copied'),
+                                  type: ToastificationType.success,
+                                  autoCloseDuration: const Duration(seconds: 2),
+                                );
+                              },
+                    ),
+                  ],
+                );
               },
             ),
             Padding(
