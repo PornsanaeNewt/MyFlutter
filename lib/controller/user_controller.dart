@@ -27,7 +27,6 @@ class UserController extends GetxController {
         email: response.data?.email ?? '',
         name: response.data?.name ?? '',
       );
-
       print('userProfile: ${userProfile.value?.data?.profileUrl}');
       update();
     } catch (e) {

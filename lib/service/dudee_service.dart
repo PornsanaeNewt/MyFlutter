@@ -13,6 +13,7 @@ import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/app_service.dart';
 import 'package:flutter_app_test1/service/auth.dart';
 import 'package:flutter_app_test1/service/fmc/firebase_analytics.dart';
+import 'package:flutter_app_test1/service/toastification_service.dart';
 import 'package:toastification/toastification.dart';
 //import 'package:logarte/logarte.dart';
 
@@ -66,13 +67,19 @@ class DudeeService {
             },
             onError: (dioError, handler) async {
               Toastification().show(
-                title: const Text("Network Error"),
+                title: Text("Network Error"),
                 description: Text(
-                  '${dioError.response?.statusCode ?? ''} ${dioError.requestOptions.uri}',
+                  dioError.response!.statusCode.toString() +
+                      dioError.requestOptions.uri.toString(),
                 ),
                 type: ToastificationType.error,
               );
 
+              String? refreshToken =
+                  await LocalStorageService.getRefreshToken();
+              if (refreshToken == null) {
+                return handler.next(dioError);
+              }
               // Log error
               AnalyticsService.logError(
                 errorMessage: 'Dio Network Error',

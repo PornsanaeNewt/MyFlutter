@@ -10,9 +10,9 @@ import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/screen/home/widgets/list_chat_widget.dart';
 import 'package:flutter_app_test1/screen/home/widgets/list_friend_widget.dart';
 import 'package:flutter_app_test1/screen/widgets/profile_circle.dart';
+import 'package:flutter_app_test1/service/toastification_service.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:toastification/toastification.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,21 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleRefresh() async {
-    Toastification().show(
-      title: Text("Error"),
-      description: Text("Starting refresh..."),
-      type: ToastificationType.error,
-    );
-
     await userController.fetchUserProfile();
     await conversationController.fetchConversations();
     await friendController.fetchFriends();
-
-    Toastification().show(
-      title: Text("Error"),
-      description: Text("End refresh..."),
-      type: ToastificationType.error,
-    );
   }
 
   @override
@@ -142,11 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? null
                               : () {
                                 Clipboard.setData(ClipboardData(text: token));
-                                Toastification().show(
-                                  title: const Text('Copied'),
-                                  description: const Text('Token copied'),
-                                  type: ToastificationType.success,
-                                  autoCloseDuration: const Duration(seconds: 2),
+                                ToastService().error(
+                                  'Copied to clipboard',
+                                  description: 'Token has been copied.',
                                 );
                               },
                     ),

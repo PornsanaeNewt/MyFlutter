@@ -7,7 +7,7 @@ class BottomBar extends StatelessWidget {
   AppSettingController controller = Get.put(AppSettingController());
 
   static const _radiusBorderMenu = 16.0;
-  final int indexMain = 1; 
+  final int indexMain = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -16,27 +16,29 @@ class BottomBar extends StatelessWidget {
         topLeft: Radius.circular(_radiusBorderMenu),
         topRight: Radius.circular(_radiusBorderMenu),
       ),
-      child: Obx(() => BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              items: List.generate(
-                controller.menuBarItems.length,
-                (index) => BottomNavigationBarItem(
-                  label: controller.menuBarItems[index].label,
-                  icon: Padding(padding: const EdgeInsets.only(bottom: 4.0),
-                    child: controller.menuBarItems[index].icon,
-                  ),
-                ),
+      child: Obx(
+        () => BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          items: List.generate(
+            controller.menuBarItems.length,
+            (index) => BottomNavigationBarItem(
+              label: controller.menuBarItems[index].label,
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: controller.menuBarItems[index].icon,
               ),
-      
-              selectedItemColor: Colors.blue,
-              unselectedItemColor: Colors.grey,
-      
-              currentIndex: controller.selectedIndex.value,
-              onTap: (index) {
-                controller.setSelectedIndex(index);
-        },
-      )
-    ),
+            ),
+          ),
+
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+
+          currentIndex: controller.selectedIndex.value,
+          onTap: (index) {
+            controller.setSelectedIndex(index);
+          },
+        ),
+      ),
     );
   }
 }
