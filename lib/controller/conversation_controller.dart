@@ -1,21 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/model/chat_model.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:toastification/toastification.dart';
 
 class ConversationController extends GetxController {
   RxList<Datum> conversations = <Datum>[].obs;
   Rx<Meta?> meta = Rx<Meta?>(null);
   RxBool isLoading = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchConversations();
-  }
-
-  /// ดึงข้อมูล conversations จาก API
-  /// แก้ไข: เพิ่ม error handling และ null safety ที่ดีขึ้น
   Future<void> fetchConversations() async {
     try {
       isLoading.value = true;
@@ -28,17 +23,35 @@ class ConversationController extends GetxController {
           fetchedConversations.data!.data != null) {
         conversations.assignAll(fetchedConversations.data!.data!);
         meta.value = fetchedConversations.data!.meta;
-        print('✅ Fetched ${conversations.length} conversations');
+        Toastification().show(
+          title: Text("Conversation Loaded"),
+          description: Text("✅ Fetched ${conversations.length} conversations"),
+          type: ToastificationType.error,
+        );
       } else {
-        print('⚠️ No conversations data received');
         conversations.clear();
         meta.value = null;
+        Toastification().show(
+          title: Text("Conversation Cleared"),
+          description: Text("⚠️ No conversations data received"),
+          type: ToastificationType.error,
+        );
       }
     } catch (e) {
       print("❌ Error fetching conversations: $e");
+      Toastification().show(
+        title: Text("Conversation Error"),
+        description: Text("Failed to fetch conversations. $e"),
+        type: ToastificationType.error,
+      );
       // ไม่ clear conversations ถ้า error เพื่อให้แสดงข้อมูลเก่า
       // หรือถ้าต้องการ clear: conversations.clear();
     } finally {
+      Toastification().show(
+        title: Text("Conversation Loaded"),
+        description: Text("..."),
+        type: ToastificationType.error,
+      );
       isLoading.value = false;
       update();
     }
@@ -76,5 +89,4 @@ class ConversationController extends GetxController {
     meta.value = null;
     update();
   }
-  
 }

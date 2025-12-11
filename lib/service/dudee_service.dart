@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/config/app_config.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/app_service.dart';
 import 'package:flutter_app_test1/service/fmc/firebase_analytics.dart';
 import 'package:flutter_app_test1/service/tokens/token_interceptor.dart';
+import 'package:toastification/toastification.dart';
 //import 'package:logarte/logarte.dart';
 
 /// Custom Exception สำหรับ DudeeService
@@ -44,9 +46,7 @@ class DudeeService {
               requestOptions.baseUrl = NetworkAPI.baseURLDudee;
 
               // Headers
-              final makeToken = await LocalStorageService.getToken(
-                Token.accessToken,
-              );
+              final makeToken = await LocalStorageService.getToken();
               // final makeToken = AppConfig.makeTokenAuthorization;
 
               final secretkey = AppConfig.secretKey;
@@ -64,6 +64,15 @@ class DudeeService {
               return handler.next(response);
             },
             onError: (dioError, handler) async {
+              Toastification().show(
+                title: Text("Network Error"),
+                description: Text(
+                  dioError.response!.statusCode.toString() +
+                      dioError.requestOptions.uri.toString(),
+                ),
+                type: ToastificationType.error,
+              );
+
               String? refreshToken =
                   await LocalStorageService.getRefreshToken();
               if (refreshToken == null) {
@@ -105,6 +114,8 @@ class DudeeService {
                       'Error Response Data: ${responseData['errors']}',
                 );
               }
+
+              //Handle 401 reeors
 
               // Handle non-response errors
               if (dioError.response == null) {
@@ -344,16 +355,17 @@ class DudeeService {
     }
   }
 
-
   Future<Response> getUserById(int userId) async {
-    final response = await _dioDudee.get('${NetworkAPI.getUserById}/$userId', data: userId);    
+    final response = await _dioDudee.get(
+      '${NetworkAPI.getUserById}/$userId',
+      data: userId,
+    );
     print('Get User By Id Status ${response.statusCode}');
     print('Get User By Id Data ${response.data}');
     if (response.statusCode == 200) {
       return response;
-    } else {      
+    } else {
       throw DudeeServiceException(message: 'Failed to load user profile');
     }
   }
-
 }

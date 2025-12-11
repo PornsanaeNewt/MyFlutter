@@ -27,7 +27,7 @@ class AppRoute {
     // Redirect function สำหรับตรวจสอบ authentication
     redirect: (BuildContext context, GoRouterState state) async {
       final isSplashPage = state.uri.path == AppRoute.splash;
-      if(isSplashPage) return null;
+      if (isSplashPage) return null;
 
       final isLoginPage = state.uri.path == AppRoute.login;
       final isRegisterPage = state.uri.path == AppRoute.register;
@@ -69,7 +69,7 @@ class AppRoute {
           return MaterialPage(child: HomePage());
         },
       ),
-      
+
       GoRoute(
         name: register,
         path: register,

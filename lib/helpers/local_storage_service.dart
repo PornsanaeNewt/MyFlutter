@@ -3,17 +3,14 @@ import 'package:flutter_app_test1/service/tokens/token_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService {
-
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(Token.accessToken, token);
-
   }
 
-  static Future<String?> getToken(String key) async {
+  static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
-
+    return prefs.getString(Token.accessToken);
   }
 
   static Future<void> deleteToken(String key) async {
@@ -27,22 +24,22 @@ class LocalStorageService {
   }
 
   static Future<String?> getRefreshToken() async {
-      final prefs = await SharedPreferences.getInstance();
-      final refreshToken = prefs.getString(Token.refreshToken);
-      return refreshToken;
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString(Token.refreshToken);
+    return refreshToken;
   }
 
   static Future<void> deleteRefreshToken(String refkey) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(refkey);
   }
-  
-  Future<void> setUserInfo({int? userId , String? email, name}) async {
+
+  Future<void> setUserInfo({int? userId, String? email, name}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (userId != null) {
-        prefs.setInt(AppSetting.userId, userId); 
+      prefs.setInt(AppSetting.userId, userId);
     } else {
-        prefs.remove(AppSetting.userId); 
+      prefs.remove(AppSetting.userId);
     }
     prefs.setString(AppSetting.email, email ?? "");
     prefs.setString(AppSetting.name, name ?? "");
@@ -50,15 +47,11 @@ class LocalStorageService {
 
   Future<Map<String, dynamic>> getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int? userId = prefs.getInt(AppSetting.userId); 
+    final int? userId = prefs.getInt(AppSetting.userId);
     final String? email = prefs.getString(AppSetting.email);
     final String? name = prefs.getString(AppSetting.name);
 
-    return {
-        'userId': userId,
-        'email': email,
-        'name': name,
-    };
+    return {'userId': userId, 'email': email, 'name': name};
   }
 
   static Future<void> saveIsLogin(bool isLogin) async {

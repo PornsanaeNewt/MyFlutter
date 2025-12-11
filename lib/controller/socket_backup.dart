@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:flutter_app_test1/controller/friend_controller.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 
-import '../service/tokens/token_interceptor.dart';
-
 enum SocketSatus { connecting, connected, error, disconnect, authError }
 
 class SocketController extends GetxController {
@@ -19,7 +17,7 @@ class SocketController extends GetxController {
   /// เชื่อมต่อ Socket และตั้งค่า listeners
   Future<socket_io.Socket> connectSocket() async {
     // ดึง token ปัจจุบัน
-    final accessToken = await LocalStorageService.getToken(Token.accessToken);
+    final accessToken = await LocalStorageService.getToken();
     if (accessToken == null || accessToken.isEmpty) {
       print('❌ [Socket] Access token missing, skip connection');
       socketStatus.value = SocketSatus.authError;

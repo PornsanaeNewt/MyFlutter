@@ -1,3 +1,4 @@
+import 'package:flutter_app_test1/helpers/app_setting.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
@@ -11,6 +12,8 @@ class UserController extends GetxController {
   void setIsLogIn({required bool logIn}) async {
     await LocalStorageService.saveIsLogin(logIn);
     final isLogin = await LocalStorageService.getIsLogin();
+    AppSettingController appSettingController = Get.put(AppSettingController());
+    appSettingController.setSelectedIndex(0);
     isLogIn.value = isLogin;
     update();
   }

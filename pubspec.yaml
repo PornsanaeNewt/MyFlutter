@@ -1,7 +1,7 @@
 name: flutter_app_test1
 description: "A new Flutter project."
 publish_to: 'none' 
-version: 1.0.0+6
+version: 1.0.0+7
 
 environment:
   sdk: ^3.7.2
@@ -20,6 +20,7 @@ dependencies:
   firebase_core: ^4.2.1
   fluttertoast: ^9.0.0
   video_player: ^2.10.1
+  toastification: ^3.0.3
 
   
 dev_dependencies:

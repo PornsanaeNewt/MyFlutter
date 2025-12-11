@@ -9,12 +9,6 @@ class FriendController extends GetxController {
   // Map เพื่อเก็บสถานะออนไลน์ (userId, isOnline)
   final RxMap<int, bool> onlineStatus = <int, bool>{}.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchFriends();
-  }
-
   /// ดึงข้อมูล friends จาก API
   /// แก้ไข: เพิ่ม error handling และ null safety ที่ดีขึ้น
   Future<void> fetchFriends() async {
@@ -46,5 +40,10 @@ class FriendController extends GetxController {
   void updateUserStatus(int userId, bool isOnline) {
     onlineStatus[userId] = isOnline;
     print('🟢 User $userId is ${isOnline ? 'online' : 'offline'}');
+  }
+
+  Future<void> clearFriends() async {
+    friends.clear();
+    update();
   }
 }

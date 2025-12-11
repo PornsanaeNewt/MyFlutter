@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
+import 'package:flutter_app_test1/controller/friend_controller.dart';
 import 'package:flutter_app_test1/controller/socket_controller.dart';
 import 'package:flutter_app_test1/controller/user_controller.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
@@ -12,8 +13,10 @@ import 'package:go_router/go_router.dart';
 class Auth {
   UserController userController = Get.put(UserController());
   SocketController skController = Get.put(SocketController());
-  ConversationController conversationController =
-      Get.put(ConversationController());
+  FriendController friendController = Get.put(FriendController());
+  ConversationController conversationController = Get.put(
+    ConversationController(),
+  );
 
   Future<bool> login(
     BuildContext context, {
@@ -57,6 +60,7 @@ class Auth {
     if (logout) {
       await userController.clearMemberInfo();
       await conversationController.clearConversations();
+      await friendController.clearFriends();
       GoRouter.of(context).goNamed(AppRoute.login);
     } else {
       Fluttertoast.showToast(

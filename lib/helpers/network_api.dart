@@ -1,6 +1,6 @@
 class NetworkAPI {
-  static const String baseURLDudee = 'https://mobile-api.kimistrydev.com/api/v1';
-  static const String socketUrl = 'https://mobile-api.kimistrydev.com/ws/chat';
+  static const String baseURLDudee = const String.fromEnvironment('API_KEY');
+  static const String socketUrl = const String.fromEnvironment('SOCKET_URL');
   static const String post = '/posts';
   static const String login = '/auth/login';
   static const String refresh = '/auth/refresh';
