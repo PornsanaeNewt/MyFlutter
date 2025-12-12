@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/model/menubar_model.dart';
 import 'package:flutter_app_test1/screen/home/widgets/home_widget.dart';
-import 'package:flutter_app_test1/screen/profile/profile.dart';
+import 'package:flutter_app_test1/screen/profile/view/profile.dart';
 import 'package:get/state_manager.dart';
 
 class AppSetting {

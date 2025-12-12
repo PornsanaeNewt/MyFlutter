@@ -4,7 +4,7 @@ import 'package:flutter_app_test1/model/conversation.dart';
 import 'package:flutter_app_test1/screen/chat/view/chat.dart';
 import 'package:flutter_app_test1/screen/home/view/home.dart';
 import 'package:flutter_app_test1/screen/login/login.dart';
-import 'package:flutter_app_test1/screen/profile/profile.dart';
+import 'package:flutter_app_test1/screen/profile/view/profile.dart';
 import 'package:flutter_app_test1/screen/register/register.dart';
 import 'package:flutter_app_test1/screen/splash/view/splash_sceen.dart';
 import 'package:go_router/go_router.dart';

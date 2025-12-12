@@ -39,7 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void init() async {
-    await _handleRefresh();
+    await userController.fetchUserProfile();
+    await conversationController.fetchConversations();
+    await friendController.fetchFriends();
   }
 
   Future<void> _handleRefresh() async {

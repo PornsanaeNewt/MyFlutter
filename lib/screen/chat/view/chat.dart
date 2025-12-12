@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/controller/chat_controller.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
 import 'package:flutter_app_test1/controller/friend_controller.dart';
-import 'package:flutter_app_test1/controller/user_controller.dart'; 
+import 'package:flutter_app_test1/controller/user_controller.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/model/message_model.dart';
 import 'package:flutter_app_test1/screen/widgets/profile_circle.dart';
@@ -27,12 +27,11 @@ class _ChatPageState extends State<ChatPage> {
   Map<String, dynamic> _currentUserInfo = {};
   Timer? _timer;
   void startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 10),
-    (Timer t) {
+    _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
       chatController.fetchDataForChat(widget.conversationId);
-    }
-    );
+    });
   }
+
   void stopTimer() {
     _timer?.cancel();
   }
@@ -45,7 +44,7 @@ class _ChatPageState extends State<ChatPage> {
     friendController = Get.find<FriendController>();
     _scrollController = ScrollController();
     chatController.setScrollController(_scrollController);
-    startTimer();
+    //startTimer();
 
     _loadCurrentUserInfo().then((_) {
       chatController.fetchDataForChat(widget.conversationId);
@@ -58,11 +57,11 @@ class _ChatPageState extends State<ChatPage> {
       _currentUserInfo = userInfo;
     });
   }
-  
+
   @override
   void dispose() {
     _scrollController.dispose();
-    stopTimer();
+    //stopTimer();
     super.dispose();
   }
 
@@ -75,8 +74,11 @@ class _ChatPageState extends State<ChatPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () async {
-            GoRouter.of(context).pop({'isPop':true});
-            ConversationController conversationController = Get.isRegistered<ConversationController>() ? Get.find<ConversationController>() : Get.put(ConversationController());
+            GoRouter.of(context).pop({'isPop': true});
+            ConversationController conversationController =
+                Get.isRegistered<ConversationController>()
+                    ? Get.find<ConversationController>()
+                    : Get.put(ConversationController());
             await conversationController.fetchConversations();
           },
         ),
@@ -95,15 +97,18 @@ class _ChatPageState extends State<ChatPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(participant.name ?? 'User',
-                      style: const TextStyle(fontSize: 16)),
+                  Text(
+                    participant.name ?? 'User',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   if (isOnline)
                     const Text(
                       'Online',
                       style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold),
+                        fontSize: 12,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                 ],
               ),
@@ -114,7 +119,9 @@ class _ChatPageState extends State<ChatPage> {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: Obx(() => _buildMessageList(chatController.messages))), 
+            Expanded(
+              child: Obx(() => _buildMessageList(chatController.messages)),
+            ),
             _buildUserInput(),
           ],
         ),
@@ -127,12 +134,12 @@ class _ChatPageState extends State<ChatPage> {
       return const Center(child: Text("No messages yet."));
     }
     return ListView.builder(
-      controller: _scrollController, 
+      controller: _scrollController,
       padding: const EdgeInsets.all(8.0),
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final messageItem = messages[index];
-        final bool isMe = messageItem.sender?.id == _currentUserInfo['userId']; 
+        final bool isMe = messageItem.sender?.id == _currentUserInfo['userId'];
         return _buildMessageBubble(messageItem, isMe);
       },
     );
@@ -140,7 +147,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMessageBubble(Item message, bool isMe) {
     final participant = message.sender;
-    
+
     // final readed = message.readBy?.firstWhere(
     //   (reader) => reader.userId == _currentUserInfo['userId'] ,
     // );
@@ -158,26 +165,34 @@ class _ChatPageState extends State<ChatPage> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!isMe)
-            Text(participant.name ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            Text(
+              participant.name ?? 'Unknown',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
           if (!isMe) const SizedBox(height: 4),
-            Text(message.content ?? ''),
+          Text(message.content ?? ''),
           if (isMe && readedStatus)
-            const Text('✓ อ่านแล้ว', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            const Text(
+              '✓ อ่านแล้ว',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
         ],
       ),
     );
 
     // ตรวจสอบเพื่อดึง profileUrl ของตัวเอง
-    final myProfileUrl = userController.userProfile.value?.data?.profileUrl; 
+    final myProfileUrl = userController.userProfile.value?.data?.profileUrl;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe)
@@ -185,11 +200,10 @@ class _ChatPageState extends State<ChatPage> {
           if (!isMe) const SizedBox(width: 8),
           Flexible(child: messageBubble),
           if (isMe) const SizedBox(width: 8),
-          if (isMe)
-            ProfileCircle(imageUrl: myProfileUrl, size: 30),
-        ]
-        ),
-      );
+          if (isMe) ProfileCircle(imageUrl: myProfileUrl, size: 30),
+        ],
+      ),
+    );
   }
 
   Widget _buildUserInput() {
@@ -200,7 +214,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: TextField(
               // ใช้ Controller จาก ChatController
-              controller: chatController.messageController, 
+              controller: chatController.messageController,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
                 border: OutlineInputBorder(
@@ -219,7 +233,7 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             icon: const Icon(Icons.send),
             // เรียกใช้ sendMessage จาก Controller
-            onPressed: () => chatController.sendMessage(widget.conversationId), 
+            onPressed: () => chatController.sendMessage(widget.conversationId),
           ),
         ],
       ),

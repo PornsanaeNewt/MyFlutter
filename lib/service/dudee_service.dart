@@ -13,7 +13,6 @@ import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/app_service.dart';
 import 'package:flutter_app_test1/service/auth.dart';
 import 'package:flutter_app_test1/service/fmc/firebase_analytics.dart';
-import 'package:flutter_app_test1/service/toastification_service.dart';
 import 'package:toastification/toastification.dart';
 //import 'package:logarte/logarte.dart';
 

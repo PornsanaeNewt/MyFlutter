@@ -11,10 +11,10 @@ import 'package:flutter/material.dart';
 class ChatController extends GetxController {
   final dudee = DudeeService();
   final SocketController skController = Get.find<SocketController>();
-  final UserController userController = Get.find<UserController>(); 
+  final UserController userController = Get.find<UserController>();
 
   final RxList<Item> messages = <Item>[].obs;
-  final TextEditingController messageController = TextEditingController(); 
+  final TextEditingController messageController = TextEditingController();
   ScrollController? scrollController;
   String? currentConversationId;
 
@@ -55,7 +55,8 @@ class ChatController extends GetxController {
         scrollToBottom(); // เลื่อนลง
       } else {
         print(
-            'Ignoring message for different conversation: ${data['conversationId']}');
+          'Ignoring message for different conversation: ${data['conversationId']}',
+        );
       }
     }
   }
@@ -72,7 +73,9 @@ class ChatController extends GetxController {
       if (messageResponse.data != null && messageResponse.data!.items != null) {
         final items = messageResponse.data!.items!;
         items.sort((a, b) {
-          return (a.createdAt ?? DateTime(0)).compareTo(b.createdAt ?? DateTime(0));
+          return (a.createdAt ?? DateTime(0)).compareTo(
+            b.createdAt ?? DateTime(0),
+          );
         });
         // อัปเดตข้อความทั้งหมด
         messages.assignAll(items);
@@ -89,8 +92,7 @@ class ChatController extends GetxController {
     final ConversationController conversationController = Get.find();
     final currentUserId = userController.userProfile.value?.data?.userId;
 
-    final conversation =
-        conversationController.conversations.firstWhereOrNull(
+    final conversation = conversationController.conversations.firstWhereOrNull(
       (c) => c.id == conversationId,
     );
 
@@ -104,12 +106,12 @@ class ChatController extends GetxController {
   Future<void> sendMessage(String conversationId) async {
     if (messageController.text.trim().isEmpty) return;
     final content = messageController.text.trim();
-    dudee.sendMessage(int.parse(conversationId), content);
+    await dudee.sendMessage(int.parse(conversationId), content);
+
     // final messageData = {
     //   'conversationId': int.parse(conversationId),
     //   'content': content,
     // };
-
     // ส่งข้อความผ่าน Socket
     //skController.socket?.emit('message:send', messageData);
 
@@ -117,7 +119,11 @@ class ChatController extends GetxController {
     final currentUser = userController.userProfile.value?.data;
     final optimisticMessage = Item(
       content: content,
-      sender: Sender(id: currentUser?.userId, name: currentUser?.name, profileUrl: currentUser?.profileUrl),
+      sender: Sender(
+        id: currentUser?.userId,
+        name: currentUser?.name,
+        profileUrl: currentUser?.profileUrl,
+      ),
       createdAt: DateTime.now(),
       isReadByMe: false, // ตั้งเป็น false ในตอนแรก
     );
@@ -144,11 +150,11 @@ class ChatController extends GetxController {
       }
     });
   }
-  
+
   void setScrollController(ScrollController controller) {
     scrollController = controller;
   }
-  
+
   @override
   void onClose() {
     messageController.dispose();
