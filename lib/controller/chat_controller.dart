@@ -3,6 +3,7 @@ import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
 import 'package:flutter_app_test1/controller/socket_controller.dart';
 import 'package:flutter_app_test1/controller/user_controller.dart';
+import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/model/chat_model.dart' as chat_model;
 import 'package:flutter_app_test1/model/message_model.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
@@ -46,14 +47,13 @@ class ChatController extends GetxController {
 
   // --- Logic สำหรับหน้า Chat ---
 
-  void handleIncomingMessage(dynamic data) {
+  void handleIncomingMessage(dynamic data) async {
     try {
+      final localStorageService = await LocalStorageService().getUserInfo();
       print('📬 [ChatController] Handling incoming message: $data');
       if (data is Map<String, dynamic>) {
-        if (data['conversationId'].toString() == currentConversationId) {
-          // The incoming data (data) format is:
-          // {conversationId: 2, message: {id: 47, conversationId: 2, senderId: 2, content: hhhhh, createdAt: 2025-12-12T08:57:59.455Z, updatedAt: 2025-12-12T08:57:59.455Z, sender: {id: 2, email: tee@example.com, name: Tee}}}
-
+        if (data['conversationId'].toString() == currentConversationId &&
+            data['message']['sender']['id'] != localStorageService['userId']) {
           final message = data['message'];
           final sender = message['sender'];
           final item = Item(
