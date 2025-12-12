@@ -21,7 +21,6 @@ dependencies:
   fluttertoast: ^9.0.0
   video_player: ^2.10.1
   toastification: ^3.0.3
-  logarte: ^1.4.0
   shimmer_animation: ^2.2.2+1
   shimmer: ^3.0.0
 
