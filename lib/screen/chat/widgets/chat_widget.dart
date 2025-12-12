@@ -214,7 +214,6 @@ class _ChatWidgetState extends State<ChatWidget> {
         children: [
           Expanded(
             child: TextField(
-              // ใช้ Controller จาก ChatController
               controller: chatController.messageController,
               decoration: InputDecoration(
                 hintText: 'Type a message...',

@@ -52,7 +52,6 @@ class ChatController extends GetxController {
       if (data['conversationId'].toString() == currentConversationId) {
         final messageItem = Item.fromJson(data);
         messages.add(messageItem);
-        scrollToBottom(); // เลื่อนลง
       } else {
         print(
           'Ignoring message for different conversation: ${data['conversationId']}',
@@ -87,7 +86,6 @@ class ChatController extends GetxController {
     }
   }
 
-  /// ค้นหาข้อมูลของอีกฝ่ายในห้องแชท
   void _findOtherParticipant(int conversationId) {
     final ConversationController conversationController = Get.find();
     final currentUserId = userController.userProfile.value?.data?.userId;
@@ -128,7 +126,6 @@ class ChatController extends GetxController {
       isReadByMe: false, // ตั้งเป็น false ในตอนแรก
     );
 
-    // อัปเดตข้อความผ่าน messages.add()
     messages.add(optimisticMessage);
     messageController.clear();
     scrollToBottom();

@@ -1,3 +1,4 @@
+import 'package:flutter_app_test1/controller/chat_controller.dart';
 import 'package:flutter_app_test1/controller/friend_controller.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
@@ -114,6 +115,7 @@ class SocketController extends GetxController {
 
     socket!.on('message:new', (data) {
       print('📩 [Socket] New message received: $data');
+      Get.find<ChatController>().handleIncomingMessage(data);
     });
 
     socket!.on('connection:success', (data) {
