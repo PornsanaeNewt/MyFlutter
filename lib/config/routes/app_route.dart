@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_test1/config/logarte.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/model/conversation.dart';
 import 'package:flutter_app_test1/screen/chat/view/chat.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_app_test1/screen/profile/view/profile.dart';
 import 'package:flutter_app_test1/screen/register/register.dart';
 import 'package:flutter_app_test1/screen/splash/view/splash_sceen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logarte/logarte.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -24,6 +26,7 @@ class AppRoute {
   static final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: AppRoute.splash,
+    observers: [LogarteNavigatorObserver(logarte)],
     // Redirect function สำหรับตรวจสอบ authentication
     redirect: (BuildContext context, GoRouterState state) async {
       final isSplashPage = state.uri.path == AppRoute.splash;

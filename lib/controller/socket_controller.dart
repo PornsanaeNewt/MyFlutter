@@ -95,8 +95,6 @@ class SocketController extends GetxController {
       print('✅ [Socket] Connected, ID: ${socket?.id}');
     });
 
-
-
     // Connection error (ตั้งก่อน connect)
     socket!.on('connect_error', (data) async {
       if (_isUnauthorizedError(data)) {

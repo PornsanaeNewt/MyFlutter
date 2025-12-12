@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/config/app_config.dart';
+import 'package:flutter_app_test1/config/logarte.dart';
 import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_app_test1/model/user_profile.dart';
 import 'package:flutter_app_test1/service/app_service.dart';
 import 'package:flutter_app_test1/service/auth.dart';
 import 'package:flutter_app_test1/service/fmc/firebase_analytics.dart';
+import 'package:logarte/logarte.dart';
 import 'package:toastification/toastification.dart';
 //import 'package:logarte/logarte.dart';
 
@@ -39,6 +41,7 @@ class DudeeService {
       Dio()
         // ..interceptors.add(TokenInterceptor())
         //..interceptors.add(LogarteDioInterceptor(logarte))
+        ..interceptors.add(LogarteDioInterceptor(logarte))
         ..interceptors.add(
           InterceptorsWrapper(
             onRequest: (requestOptions, handler) async {
@@ -56,8 +59,8 @@ class DudeeService {
               print('Token : ${makeToken}');
 
               requestOptions.headers['Authorization'] = 'Bearer $makeToken';
-              requestOptions.headers['secretkey'] = secretkey;
-              requestOptions.headers['Cookie'] = cookie;
+              //requestOptions.headers['secretkey'] = secretkey;
+              //requestOptions.headers['Cookie'] = cookie;
 
               return handler.next(requestOptions);
             },
@@ -256,6 +259,10 @@ class DudeeService {
     try {
       final response = await _dioDudee.get('${NetworkAPI.userProfile}');
       print('Get Profile Status ${response.statusCode}');
+
+      logarte.log("Status Code: ${response.statusCode}");
+      logarte.log("Data: ${response.data}");
+
       if (response.statusCode == 200) {
         final userProfile = UserProfile.fromJson(response.data);
         return userProfile;
@@ -266,6 +273,7 @@ class DudeeService {
         );
       }
     } catch (e) {
+      logarte.log("Error in getUserProfile: $e");
       print(e);
       rethrow;
     }

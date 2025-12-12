@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_test1/config/logarte.dart';
 import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
 import 'package:flutter_app_test1/controller/friend_controller.dart';
@@ -101,7 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  const Icon(Icons.camera_alt_outlined, size: 28),
+                  IconButton(
+                    icon: Icon(Icons.settings),
+                    onPressed: () {
+                      logarte.attach(context: context, visible: true);
+                    },
+                  ),
                   const SizedBox(width: 16),
                   const Icon(Icons.edit, size: 28),
                 ],

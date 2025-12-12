@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/controller/chat_controller.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
 import 'package:flutter_app_test1/controller/friend_controller.dart';
+import 'package:flutter_app_test1/controller/socket_controller.dart';
 import 'package:flutter_app_test1/controller/user_controller.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/model/message_model.dart';
@@ -24,6 +25,7 @@ class _ChatPageState extends State<ChatPage> {
   late final UserController userController;
   late final FriendController friendController;
   late final ScrollController _scrollController;
+  SocketController socketController = Get.find<SocketController>();
   Map<String, dynamic> _currentUserInfo = {};
   Timer? _timer;
   void startTimer() {
@@ -43,6 +45,9 @@ class _ChatPageState extends State<ChatPage> {
     userController = Get.find<UserController>();
     friendController = Get.find<FriendController>();
     _scrollController = ScrollController();
+
+    socketController.socket?.emit("conversation:join", {widget.conversationId});
+
     chatController.setScrollController(_scrollController);
     //startTimer();
 
