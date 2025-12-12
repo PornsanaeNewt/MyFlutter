@@ -52,51 +52,49 @@ class AppRoute {
       GoRoute(
         name: 'splash',
         path: splash,
-        pageBuilder: (context, state) {
-          return MaterialPage(child: SplashSceen());
+        builder: (context, state) {
+          return SplashSceen();
         },
       ),
 
       GoRoute(
         name: login,
         path: login,
-        pageBuilder: (context, state) {
-          return MaterialPage(child: Login());
+        builder: (context, state) {
+          return Login();
         },
       ),
 
       GoRoute(
         name: home,
         path: home,
-        pageBuilder: (context, state) {
-          return MaterialPage(child: HomePage());
+        builder: (context, state) {
+          return HomePage();
         },
       ),
 
       GoRoute(
         name: register,
         path: register,
-        pageBuilder: (context, state) {
-          return MaterialPage(child: Register());
+        builder: (context, state) {
+          return Register();
         },
       ),
 
       GoRoute(
         name: profile,
         path: profile,
-        pageBuilder: (context, state) {
-          return MaterialPage(child: Profile());
+        builder: (context, state) {
+          return Profile();
         },
       ),
 
       GoRoute(
         name: chat,
         path: '${chat}/:conversationId',
-        pageBuilder: (context, state) {
-          return MaterialPage(
-            child: ChatPage(
-              conversationId: state.pathParameters['conversationId']!,
-            ),
+        builder: (context, state) {
+          return ChatPage(
+            conversationId: state.pathParameters['conversationId']!,
           );
         },
       ),
