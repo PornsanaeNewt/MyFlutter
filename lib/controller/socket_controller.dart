@@ -1,7 +1,7 @@
+import 'package:flutter_app_test1/controller/friend_controller.dart';
 import 'package:flutter_app_test1/helpers/local_storage_service.dart';
 import 'package:flutter_app_test1/helpers/network_api.dart';
 import 'package:get/get.dart';
-import 'package:flutter_app_test1/controller/friend_controller.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 
 enum SocketSatus { connecting, connected, error, disconnect, authError }
@@ -10,6 +10,7 @@ class SocketController extends GetxController {
   Rx<SocketSatus> socketStatus = SocketSatus.disconnect.obs;
   socket_io.Socket? socket;
   String? _currentToken;
+  String? _currentConversationId;
   bool _hasAuthError = false;
   late final FriendController _friendController;
 
@@ -142,6 +143,17 @@ class SocketController extends GetxController {
       socketStatus.value = SocketSatus.connecting;
     });
 
+    socket?.on("conversation:join:ok", (dynamic data) {
+      // Only react when it matches the current conversation (if set)
+      final convoId = data is Map ? data['conversationId'] : null;
+      if (_currentConversationId == null || _currentConversationId == convoId) {
+        print("✅ Joined conversation: $data");
+      }
+    });
+    socket?.on("conversation:join:error", (dynamic data) {
+      print("❌ Error joining conversation: $data");
+    });
+
     socket!.onReconnectAttempt((attempt) {
       print('🔄 [Socket] Reconnection attempt: $attempt');
     });
@@ -202,5 +214,10 @@ class SocketController extends GetxController {
   void resetAuthError() {
     _hasAuthError = false;
     socketStatus.value = SocketSatus.disconnect;
+  }
+
+  /// Set current conversation ID to filter socket join responses.
+  void setCurrentConversationId(String? conversationId) {
+    _currentConversationId = conversationId;
   }
 }
