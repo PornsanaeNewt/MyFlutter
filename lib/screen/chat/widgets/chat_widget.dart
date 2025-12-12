@@ -43,11 +43,9 @@ class _ChatWidgetState extends State<ChatWidget> {
     userController = Get.find<UserController>();
     friendController = Get.find<FriendController>();
     _scrollController = ScrollController();
-
+    _joinConversation();
     chatController.setScrollController(_scrollController);
     //startTimer();
-
-    _joinConversation();
 
     _loadCurrentUserInfo().then((_) {
       chatController.fetchDataForChat(widget.conversationId);
@@ -58,7 +56,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     try {
       socketController.setCurrentConversationId(widget.conversationId);
       socketController.socket?.emit("conversation:join", {
-        widget.conversationId,
+        "conversationId": widget.conversationId,
       });
     } catch (e) {
       print("❌ Failed to join conversation: $e");

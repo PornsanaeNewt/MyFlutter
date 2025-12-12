@@ -51,7 +51,9 @@ class ChatPage extends StatelessWidget {
         final bool shouldPop = await _showBackDialog(context) ?? false;
         if (context.mounted && shouldPop) {
           SocketController socketController = Get.find<SocketController>();
-          socketController.socket?.emit("conversation:leave", {"conversationId": conversationId});
+          socketController.socket?.emit("conversation:leave", {
+            "conversationId": conversationId,
+          });
           Navigator.pop(context, result);
           ConversationController conversationController =
               Get.isRegistered<ConversationController>()
