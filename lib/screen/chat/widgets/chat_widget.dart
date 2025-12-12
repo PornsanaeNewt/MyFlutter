@@ -121,7 +121,15 @@ class _ChatWidgetState extends State<ChatWidget> {
         child: Column(
           children: [
             Expanded(
-              child: Obx(() => _buildMessageList(chatController.messages)),
+              child: Obx(() {
+                final messages = chatController.messages;
+
+                if (messages.isEmpty) {
+                  return const Center(child: Text("No messages yet."));
+                }
+
+                return _buildMessageList(messages);
+              }),
             ),
             _buildUserInput(),
           ],
@@ -131,9 +139,6 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   Widget _buildMessageList(List<Item> messages) {
-    if (messages.isEmpty) {
-      return const Center(child: Text("No messages yet."));
-    }
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(8.0),
@@ -141,6 +146,28 @@ class _ChatWidgetState extends State<ChatWidget> {
       itemBuilder: (context, index) {
         final messageItem = messages[index];
         final bool isMe = messageItem.sender?.id == _currentUserInfo['userId'];
+
+        // Animate messages that were just added (within last 500ms)
+        final isNew =
+            messageItem.createdAt != null &&
+            DateTime.now().difference(messageItem.createdAt!).inMilliseconds <
+                500;
+
+        if (isNew) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset((isMe ? 30 : -30) * (1 - value), 0),
+                child: Opacity(opacity: value, child: child),
+              );
+            },
+            child: _buildMessageBubble(messageItem, isMe),
+          );
+        }
+
         return _buildMessageBubble(messageItem, isMe);
       },
     );

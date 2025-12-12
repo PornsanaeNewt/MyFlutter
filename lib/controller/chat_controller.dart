@@ -1,12 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_app_test1/config/routes/app_route.dart';
 import 'package:flutter_app_test1/controller/conversation_controller.dart';
 import 'package:flutter_app_test1/controller/socket_controller.dart';
 import 'package:flutter_app_test1/controller/user_controller.dart';
-import 'package:flutter_app_test1/model/message_model.dart';
 import 'package:flutter_app_test1/model/chat_model.dart' as chat_model;
+import 'package:flutter_app_test1/model/message_model.dart';
 import 'package:flutter_app_test1/service/dudee_service.dart';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 
 class ChatController extends GetxController {
   final dudee = DudeeService();
@@ -47,16 +47,39 @@ class ChatController extends GetxController {
   // --- Logic สำหรับหน้า Chat ---
 
   void handleIncomingMessage(dynamic data) {
-    print('📬 [ChatController] Handling incoming message: $data');
-    if (data is Map<String, dynamic>) {
-      if (data['conversationId'].toString() == currentConversationId) {
-        final messageItem = Item.fromJson(data);
-        messages.add(messageItem);
-      } else {
-        print(
-          'Ignoring message for different conversation: ${data['conversationId']}',
-        );
+    try {
+      print('📬 [ChatController] Handling incoming message: $data');
+      if (data is Map<String, dynamic>) {
+        if (data['conversationId'].toString() == currentConversationId) {
+          // The incoming data (data) format is:
+          // {conversationId: 2, message: {id: 47, conversationId: 2, senderId: 2, content: hhhhh, createdAt: 2025-12-12T08:57:59.455Z, updatedAt: 2025-12-12T08:57:59.455Z, sender: {id: 2, email: tee@example.com, name: Tee}}}
+
+          final message = data['message'];
+          final sender = message['sender'];
+          final item = Item(
+            id: message['id'],
+            content: message['content'],
+            createdAt: DateTime.tryParse(message['createdAt'] ?? ''),
+            sender: Sender(
+              id: sender['id'],
+              name: sender['name'],
+              profileUrl: sender['profileUrl'],
+            ),
+
+            // fallback: mark as read if not present
+            isReadByMe: message['isReadByMe'] ?? false,
+          );
+
+          messages.add(item);
+          scrollToBottom();
+        } else {
+          print(
+            'Ignoring message for different conversation: ${data['conversationId']}',
+          );
+        }
       }
+    } catch (e) {
+      print('Failed to handle incoming message: $e');
     }
   }
 
