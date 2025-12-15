@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }),
                   const SizedBox(width: 10),
                   const Text(
-                    'Chats',
+                    'Chats Messenger',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 10),
